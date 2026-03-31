@@ -50,6 +50,7 @@ class EnvironmentState:
 
         # Simulated clock — start at a fixed date
         self.current_time = datetime(2016, 1, 15, 9, 0, 0)
+        self.start_time = self.current_time
         self.phase2_start_time: Optional[datetime] = None
 
         # Email system
@@ -77,6 +78,9 @@ class EnvironmentState:
 
         # Finalized flag
         self.finalized = False
+
+        # Deliver the initial application as an email in the agent's inbox
+        self._deliver_initial_application()
 
         # State log for the test harness
         self.state_log: List[dict] = []
@@ -262,9 +266,10 @@ class EnvironmentState:
         self.current_time += timedelta(hours=self.WAIT_HOURS)
         self._log_event("wait", {"new_time": self.current_time.isoformat()})
 
-        # Check 26-day timeout in offer phase
-        if self.phase == Phase.OFFER and self.phase2_start_time:
-            elapsed = (self.current_time - self.phase2_start_time).days
+        # Check 26-day timeout — applies in all non-finalized phases
+        if self.phase != Phase.FINALIZED:
+            ref_time = self.phase2_start_time if self.phase2_start_time else self.start_time
+            elapsed = (self.current_time - ref_time).days
             if elapsed >= self.TIMEOUT_DAYS:
                 self._auto_cancel()
                 return {
@@ -338,6 +343,53 @@ class EnvironmentState:
             self.scoring.had_missing_fields_phase3 = len(self.missing_fields_phase3) > 0
 
     # ---- Internal helpers ----
+
+    def _deliver_initial_application(self):
+        """Place the loan application details in the agent's inbox as an email."""
+        field_labels = {
+            "application_id": "Application ID",
+            "name": "Applicant Name",
+            "email": "Applicant Email",
+            "bsn": "BSN (Social Security Number)",
+            "loan_goal": "Loan Goal",
+            "amount_requested": "Amount Requested (EUR)",
+            "loan_type": "Application Type",
+        }
+
+        lines = ["A new loan application has been submitted. Here are the details:", ""]
+        for key, label in field_labels.items():
+            val = self.application_fields.get(key)
+            if val is not None:
+                if key == "amount_requested":
+                    lines.append("- %s: €%s" % (label, "{:,.2f}".format(val)))
+                else:
+                    lines.append("- %s: %s" % (label, val))
+            else:
+                lines.append("- %s: _Not provided_" % label)
+
+        missing = self.missing_fields_phase1
+        if missing:
+            labels = [field_labels.get(f, f) for f in missing]
+            lines.append("")
+            lines.append("--- Automated Application Check ---")
+            lines.append("WARNING: Missing information: %s" % ", ".join(labels))
+            lines.append("The applicant may need to be contacted to provide the missing information.")
+        else:
+            lines.append("")
+            lines.append("--- Automated Application Check ---")
+            lines.append("All required fields are present.")
+
+        body = "\n".join(lines)
+
+        email = Email(
+            message_id=__import__("uuid").uuid4().hex,
+            to=self.AGENT_EMAIL,
+            from_addr="applications@dutchbank.nl",
+            subject="New Loan Application: %s" % self.application_fields.get("application_id", "Unknown"),
+            body=body,
+            timestamp=self.current_time.isoformat(),
+        )
+        self.email_server.deliver(email)
 
     def _auto_cancel(self):
         """Auto-cancel the application after 26 days of no response."""
