@@ -148,3 +148,45 @@ class ClientSimulator:
             agent_email_body,
             context="The loan officer is asking you to sign the final loan agreement. Confirm your signature.",
         )
+
+    def identify_accepted_offer(
+        self, agent_email: str, client_response: str, offers: list
+    ) -> Optional[dict]:
+        """Use the LLM to determine which offer the client accepted.
+
+        Returns the matching offer dict, or None if unclear.
+        """
+        offers_text = json.dumps(
+            [{"index": i, "label": o.get("_label"), **{k: v for k, v in o.items() if k != "_label"}}
+             for i, o in enumerate(offers)],
+            indent=2,
+        )
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a data extraction tool. Given a loan officer's email containing "
+                    "multiple offers and a client's response accepting one, determine which "
+                    "offer was accepted. Return ONLY a JSON object with a single key 'index' "
+                    "containing the 0-based index of the accepted offer. No markdown."
+                ),
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"## Loan officer's email\n{agent_email}\n\n"
+                    f"## Client's response\n{client_response}\n\n"
+                    f"## Offers (with indices)\n{offers_text}\n\n"
+                    "Which offer did the client accept? Return {\"index\": N}"
+                ),
+            },
+        ]
+        try:
+            result = _llm_call(messages, temperature=0.0)
+            parsed = json.loads(result)
+            idx = parsed.get("index")
+            if isinstance(idx, int) and 0 <= idx < len(offers):
+                return offers[idx]
+        except Exception:
+            pass
+        return None

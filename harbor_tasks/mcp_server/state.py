@@ -16,7 +16,7 @@ from typing import Dict, List, Optional
 
 from .client_sim import ClientSimulator
 from .email import Email, EmailInbox, EmailServer
-from .scoring import ScoringState, extract_offer_from_email
+from .scoring import ScoringState, extract_all_offers_from_email, extract_offer_from_email
 
 
 class Phase(str, Enum):
@@ -199,10 +199,10 @@ class EnvironmentState:
         elif self.phase == Phase.VERIFICATION:
             self.scoring.record_agent_email_phase3()
 
-        # Check if email contains an offer (any phase — agent may send offers early)
-        offer = extract_offer_from_email(body)
-        if offer:
-            self.scoring.record_offer_sent(offer)
+        # Check if email contains offers (any phase — agent may send offers early)
+        offers = extract_all_offers_from_email(body)
+        if offers:
+            self.scoring.record_offers_from_email(offers)
 
         # Trigger client response if appropriate
         if to == self.profile["email"]:
@@ -236,10 +236,10 @@ class EnvironmentState:
         elif self.phase == Phase.VERIFICATION:
             self.scoring.record_agent_email_phase3()
 
-        # Check if reply contains an offer (any phase)
-        offer = extract_offer_from_email(body)
-        if offer:
-            self.scoring.record_offer_sent(offer)
+        # Check if reply contains offers (any phase)
+        offers = extract_all_offers_from_email(body)
+        if offers:
+            self.scoring.record_offers_from_email(offers)
 
         if original.from_addr == self.profile["email"]:
             self._handle_client_response(body)
@@ -450,7 +450,8 @@ class EnvironmentState:
             )
             # Check if client accepted
             if self._response_indicates_acceptance(response):
-                self.scoring.record_offer_accepted()
+                accepted = self._identify_accepted_offer(agent_email_body, response)
+                self.scoring.record_offer_accepted(accepted)
                 self.advance_phase(Phase.VERIFICATION)
 
         elif self.phase == Phase.VERIFICATION:
@@ -476,6 +477,27 @@ class EnvironmentState:
                     subject="Re: Loan Agreement Signature",
                     body=response,
                 )
+
+    def _identify_accepted_offer(self, agent_email_body: str, client_response: str) -> Optional[dict]:
+        """Determine which specific offer the client accepted.
+
+        If only one offer was in the last email, return it directly.
+        If multiple, use the LLM to identify which one the client chose.
+        """
+        last_offers = self.scoring.last_email_offers
+        if not last_offers:
+            return None
+        if len(last_offers) == 1:
+            return last_offers[0]
+
+        # Multiple offers — ask the LLM which one was accepted
+        try:
+            return self.client_sim.identify_accepted_offer(
+                agent_email_body, client_response, last_offers
+            )
+        except Exception:
+            # Fallback: return the last offer
+            return last_offers[-1]
 
     def _response_indicates_acceptance(self, response: str) -> bool:
         """Simple heuristic to check if a client response accepts an offer."""

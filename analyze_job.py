@@ -15,11 +15,11 @@ from pathlib import Path
 from typing import Optional
 
 
-def extract_offer_from_email(body):
-    """Extract offer parameters from an email body. Returns dict or None."""
+def _parse_offer_from_text(text):
+    """Extract a single offer's parameters from a chunk of text."""
     def _find_number(patterns):
         for pat in patterns:
-            m = re.search(pat, body, re.IGNORECASE)
+            m = re.search(pat, text, re.IGNORECASE)
             if m:
                 val = m.group(1).replace(",", "")
                 try:
@@ -54,6 +54,31 @@ def extract_offer_from_email(body):
     return None
 
 
+def extract_all_offers_from_email(body):
+    """Extract all offers from an email with multiple labeled options."""
+    pattern = r"(?=(?:Option|Offer|Revised\s+Offer|Loan\s+Option)\s*[A-Z0-9]+\b)"
+    sections = re.split(pattern, body, flags=re.IGNORECASE)
+
+    offers = []
+    for section in sections:
+        label_match = re.match(
+            r"((?:Option|Offer|Revised\s+Offer|Loan\s+Option)\s*[A-Z0-9]+)",
+            section.strip(), re.IGNORECASE,
+        )
+        label = label_match.group(1).strip() if label_match else None
+        offer = _parse_offer_from_text(section)
+        if offer:
+            offer["_label"] = label
+            offers.append(offer)
+
+    if not offers:
+        offer = _parse_offer_from_text(body)
+        if offer:
+            offers.append(offer)
+
+    return offers
+
+
 def load_ground_truth(task_dir):
     """Load ground truth offer from the task's config.json -> task_data.json."""
     config_file = task_dir / "config.json"
@@ -72,24 +97,29 @@ def load_ground_truth(task_dir):
         return None
 
 
-def extract_last_agent_offer(trajectory):
-    """Find the last offer the agent sent from the trajectory."""
+def extract_last_agent_offers(trajectory):
+    """Find all offers from the agent's last offer-containing email.
+
+    Returns (last_offers_list, total_offer_emails) or (None, 0).
+    """
     try:
         data = json.loads(trajectory.read_text())
     except (json.JSONDecodeError, KeyError):
-        return None
+        return None, 0
 
-    last_offer = None
+    last_offers = None
+    total_offer_emails = 0
     for s in data.get("steps", []):
         for tc in (s.get("tool_calls") or []):
             name = tc.get("function_name", "")
             if "send_email" in name or "reply_email" in name:
                 args = tc.get("arguments", {})
                 body = args.get("body", "") if isinstance(args, dict) else ""
-                offer = extract_offer_from_email(body)
-                if offer:
-                    last_offer = offer
-    return last_offer
+                offers = extract_all_offers_from_email(body)
+                if offers:
+                    last_offers = offers
+                    total_offer_emails += 1
+    return last_offers, total_offer_emails
 
 
 def format_offer(offer):
@@ -244,7 +274,7 @@ def main():
         traj = analyze_trajectory(trajectory_file) if trajectory_file.exists() else None
 
         # Offer comparison
-        agent_offer = extract_last_agent_offer(trajectory_file) if trajectory_file.exists() else None
+        agent_offers, n_offer_emails = extract_last_agent_offers(trajectory_file) if trajectory_file.exists() else (None, 0)
         gt = load_ground_truth(task_dir)
         gt_offer = None
         if gt:
@@ -274,13 +304,26 @@ def main():
         agent_steps = traj["total_steps"] if traj else None
         non_wait = traj["non_wait_steps"] if traj else None
 
-        diff = offer_diff_pct(agent_offer, gt_offer)
-        if agent_offer or gt_offer:
+        # Find the closest agent offer to ground truth (best case for the agent)
+        best_agent_offer = None
+        best_diff = None
+        if agent_offers and gt_offer:
+            for ao in agent_offers:
+                d = offer_diff_pct(ao, gt_offer)
+                if d is not None and (best_diff is None or d < best_diff):
+                    best_diff = d
+                    best_agent_offer = ao
+        elif agent_offers:
+            best_agent_offer = agent_offers[-1]
+
+        if agent_offers or gt_offer:
             offer_comparisons.append({
                 "task": task_name,
-                "agent": agent_offer,
+                "agent_offers": agent_offers or [],
+                "best_agent_offer": best_agent_offer,
                 "ground_truth": gt_offer,
-                "diff_pct": diff,
+                "diff_pct": best_diff,
+                "n_offer_emails": n_offer_emails,
             })
 
         print("  %s: score=%.2f  steps=%s (%s non-wait)  "
@@ -347,15 +390,24 @@ def main():
     # --- Offer comparison ---
     if offer_comparisons:
         print()
-        print("Offer comparison (agent's last offer vs ground truth):")
+        print("Offer comparison (agent's best offer vs ground truth):")
         diffs_with_values = []
         for oc in offer_comparisons:
-            agent_str = format_offer(oc["agent"])
+            n_offers = len(oc["agent_offers"])
+            best_str = format_offer(oc["best_agent_offer"])
             gt_str = format_offer(oc["ground_truth"])
             diff = oc["diff_pct"]
             diff_str = "%.1f%% diff" % (diff * 100) if diff is not None else "n/a"
             print("  %s:" % oc["task"])
-            print("    agent:  %s" % agent_str)
+            if n_offers > 1:
+                print("    agent:  %s  (%d offers in last email, %d emails total)" % (
+                    best_str, n_offers, oc["n_offer_emails"]))
+            elif n_offers == 1:
+                print("    agent:  %s  (%d email%s)" % (
+                    best_str, oc["n_offer_emails"],
+                    "s" if oc["n_offer_emails"] != 1 else ""))
+            else:
+                print("    agent:  none")
             print("    truth:  %s" % gt_str)
             print("    diff:   %s" % diff_str)
             if diff is not None:

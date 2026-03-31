@@ -12,18 +12,11 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 
-def extract_offer_from_email(body: str) -> Optional[dict]:
-    """Try to extract offer parameters from an email body.
-
-    Looks for patterns like:
-      Offered Amount: €10,000  /  OfferedAmount: 10000
-      Monthly Cost: €244       /  MonthlyCost: 244
-      Number of Terms: 60      /  NumberOfTerms: 60
-      First Withdrawal: €5,000 /  FirstWithdrawalAmount: 5000
-    """
-    def _find_number(patterns: list) -> Optional[float]:
+def _parse_offer_from_text(text: str) -> Optional[dict]:
+    """Try to extract a single offer's parameters from a chunk of text."""
+    def _find_number(patterns: List[str]) -> Optional[float]:
         for pat in patterns:
-            m = re.search(pat, body, re.IGNORECASE)
+            m = re.search(pat, text, re.IGNORECASE)
             if m:
                 val = m.group(1).replace(",", "").replace(".", "", m.group(1).count(".") - 1) if "." in m.group(1) else m.group(1).replace(",", "")
                 try:
@@ -58,6 +51,48 @@ def extract_offer_from_email(body: str) -> Optional[dict]:
     return None
 
 
+def extract_all_offers_from_email(body: str) -> List[dict]:
+    """Extract all offers from an email that may contain multiple labeled options.
+
+    Splits on headers like "Option 1", "Option A", "Offer 1", "Revised Offer 3", etc.
+    Returns a list of (label, offer_dict) tuples.
+    """
+    # Split by option/offer headers
+    pattern = r"(?=(?:Option|Offer|Revised\s+Offer|Loan\s+Option)\s*[A-Z0-9]+\b)"
+    sections = re.split(pattern, body, flags=re.IGNORECASE)
+
+    offers = []
+    for section in sections:
+        # Extract the label from the start of the section
+        label_match = re.match(
+            r"((?:Option|Offer|Revised\s+Offer|Loan\s+Option)\s*[A-Z0-9]+)",
+            section.strip(), re.IGNORECASE,
+        )
+        label = label_match.group(1).strip() if label_match else None
+        offer = _parse_offer_from_text(section)
+        if offer:
+            offer["_label"] = label
+            offers.append(offer)
+
+    # If no labeled sections found, try the whole body as a single offer
+    if not offers:
+        offer = _parse_offer_from_text(body)
+        if offer:
+            offer["_label"] = None
+            offers.append(offer)
+
+    return offers
+
+
+def extract_offer_from_email(body: str) -> Optional[dict]:
+    """Extract a single offer from an email (backwards-compatible).
+
+    Returns the first offer found, or None.
+    """
+    offers = extract_all_offers_from_email(body)
+    return offers[0] if offers else None
+
+
 @dataclass
 class ScoringState:
     """Tracks scoring-relevant events across all phases."""
@@ -75,6 +110,8 @@ class ScoringState:
 
     # Phase 2 tracking
     agent_offers_sent: List[dict] = field(default_factory=list)
+    last_email_offers: List[dict] = field(default_factory=list)  # all offers from most recent email
+    accepted_offer: Optional[dict] = None  # the specific offer the client accepted
     negotiation_steps: int = 0
     offer_accepted: bool = False
     timed_out_26_days: bool = False
@@ -99,12 +136,23 @@ class ScoringState:
     def record_agent_email_phase3(self):
         self.agent_emailed_in_phase3 = True
 
-    def record_offer_sent(self, offer: dict):
-        self.agent_offers_sent.append(offer)
+    def record_offers_from_email(self, offers: List[dict]):
+        """Record all offers extracted from a single agent email."""
+        self.agent_offers_sent.extend(offers)
+        self.last_email_offers = offers
         self.negotiation_steps += 1
 
-    def record_offer_accepted(self):
+    def record_offer_accepted(self, accepted: Optional[dict] = None):
         self.offer_accepted = True
+        if accepted:
+            self.accepted_offer = accepted
+        elif self.last_email_offers:
+            # Fallback: use the only offer if there's just one
+            if len(self.last_email_offers) == 1:
+                self.accepted_offer = self.last_email_offers[0]
+            else:
+                # Can't determine which — use last email's last offer
+                self.accepted_offer = self.last_email_offers[-1]
 
     def record_timeout(self):
         self.timed_out_26_days = True
@@ -145,7 +193,8 @@ class ScoringState:
         if not self.agent_offers_sent or self.ground_truth_offer is None:
             return 0.0
 
-        last_offer = self.agent_offers_sent[-1]
+        # Use the specifically-accepted offer if known, otherwise last sent
+        last_offer = self.accepted_offer or self.agent_offers_sent[-1]
         gt = self.ground_truth_offer
 
         diffs = []

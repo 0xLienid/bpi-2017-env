@@ -136,12 +136,23 @@ class ScoringState:
     def record_agent_email_phase3(self):
         self.agent_emailed_in_phase3 = True
 
-    def record_offer_sent(self, offer: dict):
-        self.agent_offers_sent.append(offer)
+    def record_offers_from_email(self, offers: List[dict]):
+        """Record all offers extracted from a single agent email."""
+        self.agent_offers_sent.extend(offers)
+        self.last_email_offers = offers
         self.negotiation_steps += 1
 
-    def record_offer_accepted(self):
+    def record_offer_accepted(self, accepted: Optional[dict] = None):
         self.offer_accepted = True
+        if accepted:
+            self.accepted_offer = accepted
+        elif self.last_email_offers:
+            # Fallback: use the only offer if there's just one
+            if len(self.last_email_offers) == 1:
+                self.accepted_offer = self.last_email_offers[0]
+            else:
+                # Can't determine which — use last email's last offer
+                self.accepted_offer = self.last_email_offers[-1]
 
     def record_timeout(self):
         self.timed_out_26_days = True
@@ -182,7 +193,8 @@ class ScoringState:
         if not self.agent_offers_sent or self.ground_truth_offer is None:
             return 0.0
 
-        last_offer = self.agent_offers_sent[-1]
+        # Use the specifically-accepted offer if known, otherwise last sent
+        last_offer = self.accepted_offer or self.agent_offers_sent[-1]
         gt = self.ground_truth_offer
 
         diffs = []
