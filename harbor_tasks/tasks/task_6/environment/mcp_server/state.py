@@ -79,6 +79,10 @@ class EnvironmentState:
         # Finalized flag
         self.finalized = False
 
+        # Turn counter
+        self.turn_count = 0
+        self.MAX_TURNS = 150
+
         # Deliver the initial application as an email in the agent's inbox
         self._deliver_initial_application()
 
@@ -195,11 +199,10 @@ class EnvironmentState:
         elif self.phase == Phase.VERIFICATION:
             self.scoring.record_agent_email_phase3()
 
-        # Check if email contains an offer (phase 2)
-        if self.phase == Phase.OFFER:
-            offer = extract_offer_from_email(body)
-            if offer:
-                self.scoring.record_offer_sent(offer)
+        # Check if email contains an offer (any phase — agent may send offers early)
+        offer = extract_offer_from_email(body)
+        if offer:
+            self.scoring.record_offer_sent(offer)
 
         # Trigger client response if appropriate
         if to == self.profile["email"]:
@@ -233,10 +236,10 @@ class EnvironmentState:
         elif self.phase == Phase.VERIFICATION:
             self.scoring.record_agent_email_phase3()
 
-        if self.phase == Phase.OFFER:
-            offer = extract_offer_from_email(body)
-            if offer:
-                self.scoring.record_offer_sent(offer)
+        # Check if reply contains an offer (any phase)
+        offer = extract_offer_from_email(body)
+        if offer:
+            self.scoring.record_offer_sent(offer)
 
         if original.from_addr == self.profile["email"]:
             self._handle_client_response(body)
@@ -244,7 +247,9 @@ class EnvironmentState:
         return result if result else {"error": "Failed to send reply"}
 
     def fraud_check(self, bsn: str) -> dict:
-        self.scoring.record_fraud_check()
+        if self.finalized:
+            return {"error": "Task has been finalized. No further actions can be taken."}
+        self.scoring.record_fraud_check(in_phase3=self.phase == Phase.VERIFICATION)
         self._log_event("fraud_check", {"bsn": bsn})
 
         entry = self.bsn_registry.get(bsn)
@@ -253,7 +258,9 @@ class EnvironmentState:
         return {"bsn": bsn, "found": True, "flagged": entry["bsn_flagged"]}
 
     def bkr_check(self, bsn: str) -> dict:
-        self.scoring.record_bkr_check()
+        if self.finalized:
+            return {"error": "Task has been finalized. No further actions can be taken."}
+        self.scoring.record_bkr_check(in_phase3=self.phase == Phase.VERIFICATION)
         self._log_event("bkr_check", {"bsn": bsn})
 
         entry = self.bkr_registry.get(bsn)
@@ -263,6 +270,8 @@ class EnvironmentState:
 
     def wait(self) -> dict:
         """Advance simulated time by WAIT_HOURS. Check for timeout and client responses."""
+        if self.finalized:
+            return {"error": "Task has been finalized. No further actions can be taken."}
         self.current_time += timedelta(hours=self.WAIT_HOURS)
         self._log_event("wait", {"new_time": self.current_time.isoformat()})
 
@@ -308,7 +317,7 @@ class EnvironmentState:
         if decision not in ("approve", "reject"):
             return {"error": f"Invalid decision '{decision}'. Must be 'approve' or 'reject'."}
 
-        self.scoring.record_final_decision(decision)
+        self.scoring.record_final_decision(decision, in_phase3=self.phase == Phase.VERIFICATION)
         self.scoring.phase3_complete = True
         self.finalized = True
         self.phase = Phase.FINALIZED
@@ -528,5 +537,10 @@ class EnvironmentState:
         Path("/shared/state.json").write_text(json.dumps(state, indent=2))
 
     def save_state_if_needed(self):
-        """Called periodically to persist state for debugging."""
+        """Called after every tool invocation. Tracks turns and auto-finalizes at limit."""
+        self.turn_count += 1
+        if not self.finalized and self.turn_count >= self.MAX_TURNS:
+            self._log_event("max_turns_reached", {"turn_count": self.turn_count})
+            self.finalized = True
+            self.phase = Phase.FINALIZED
         self._save_state()

@@ -87,6 +87,12 @@ class ScoringState:
     agent_final_decision: Optional[str] = None  # "approve" or "reject"
     phase3_complete: bool = False
 
+    # Premature action penalties
+    fraud_check_before_phase3: bool = False
+    bkr_check_before_phase3: bool = False
+    finalized_before_phase3: bool = False
+    finalized_without_checks: bool = False
+
     def record_agent_email_phase1(self):
         self.agent_emailed_in_phase1 = True
 
@@ -103,14 +109,22 @@ class ScoringState:
     def record_timeout(self):
         self.timed_out_26_days = True
 
-    def record_fraud_check(self):
+    def record_fraud_check(self, in_phase3: bool):
         self.agent_called_fraud_check = True
+        if not in_phase3:
+            self.fraud_check_before_phase3 = True
 
-    def record_bkr_check(self):
+    def record_bkr_check(self, in_phase3: bool):
         self.agent_called_bkr_check = True
+        if not in_phase3:
+            self.bkr_check_before_phase3 = True
 
-    def record_final_decision(self, decision: str):
+    def record_final_decision(self, decision: str, in_phase3: bool):
         self.agent_final_decision = decision
+        if not in_phase3:
+            self.finalized_before_phase3 = True
+        if not self.agent_called_fraud_check or not self.agent_called_bkr_check:
+            self.finalized_without_checks = True
 
     # ----- Score computation -----
 
@@ -165,6 +179,7 @@ class ScoringState:
         - +1 for calling fraud check
         - +1 for calling BKR check
         - +1 if final decision matches ground truth
+        - Penalties for premature actions
         Max: 4 points, returned as fraction of max.
         """
         score = 0.0
@@ -197,7 +212,17 @@ class ScoringState:
             if self.agent_final_decision == gt_decision:
                 score += 1.0
 
-        return round(score / max_score, 4) if max_score > 0 else 0.0
+        # Penalties for premature actions (-0.5 each)
+        if self.fraud_check_before_phase3:
+            score -= 0.5
+        if self.bkr_check_before_phase3:
+            score -= 0.5
+        if self.finalized_before_phase3:
+            score -= 0.5
+        if self.finalized_without_checks:
+            score -= 0.5
+
+        return round(max(0.0, score) / max_score, 4) if max_score > 0 else 0.0
 
     def overall_score(self) -> dict:
         """Compute the overall score as percentage of total possible points."""

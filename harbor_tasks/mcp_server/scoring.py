@@ -12,18 +12,11 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 
-def extract_offer_from_email(body: str) -> Optional[dict]:
-    """Try to extract offer parameters from an email body.
-
-    Looks for patterns like:
-      Offered Amount: €10,000  /  OfferedAmount: 10000
-      Monthly Cost: €244       /  MonthlyCost: 244
-      Number of Terms: 60      /  NumberOfTerms: 60
-      First Withdrawal: €5,000 /  FirstWithdrawalAmount: 5000
-    """
-    def _find_number(patterns: list) -> Optional[float]:
+def _parse_offer_from_text(text: str) -> Optional[dict]:
+    """Try to extract a single offer's parameters from a chunk of text."""
+    def _find_number(patterns: List[str]) -> Optional[float]:
         for pat in patterns:
-            m = re.search(pat, body, re.IGNORECASE)
+            m = re.search(pat, text, re.IGNORECASE)
             if m:
                 val = m.group(1).replace(",", "").replace(".", "", m.group(1).count(".") - 1) if "." in m.group(1) else m.group(1).replace(",", "")
                 try:
@@ -58,6 +51,48 @@ def extract_offer_from_email(body: str) -> Optional[dict]:
     return None
 
 
+def extract_all_offers_from_email(body: str) -> List[dict]:
+    """Extract all offers from an email that may contain multiple labeled options.
+
+    Splits on headers like "Option 1", "Option A", "Offer 1", "Revised Offer 3", etc.
+    Returns a list of (label, offer_dict) tuples.
+    """
+    # Split by option/offer headers
+    pattern = r"(?=(?:Option|Offer|Revised\s+Offer|Loan\s+Option)\s*[A-Z0-9]+\b)"
+    sections = re.split(pattern, body, flags=re.IGNORECASE)
+
+    offers = []
+    for section in sections:
+        # Extract the label from the start of the section
+        label_match = re.match(
+            r"((?:Option|Offer|Revised\s+Offer|Loan\s+Option)\s*[A-Z0-9]+)",
+            section.strip(), re.IGNORECASE,
+        )
+        label = label_match.group(1).strip() if label_match else None
+        offer = _parse_offer_from_text(section)
+        if offer:
+            offer["_label"] = label
+            offers.append(offer)
+
+    # If no labeled sections found, try the whole body as a single offer
+    if not offers:
+        offer = _parse_offer_from_text(body)
+        if offer:
+            offer["_label"] = None
+            offers.append(offer)
+
+    return offers
+
+
+def extract_offer_from_email(body: str) -> Optional[dict]:
+    """Extract a single offer from an email (backwards-compatible).
+
+    Returns the first offer found, or None.
+    """
+    offers = extract_all_offers_from_email(body)
+    return offers[0] if offers else None
+
+
 @dataclass
 class ScoringState:
     """Tracks scoring-relevant events across all phases."""
@@ -75,6 +110,8 @@ class ScoringState:
 
     # Phase 2 tracking
     agent_offers_sent: List[dict] = field(default_factory=list)
+    last_email_offers: List[dict] = field(default_factory=list)  # all offers from most recent email
+    accepted_offer: Optional[dict] = None  # the specific offer the client accepted
     negotiation_steps: int = 0
     offer_accepted: bool = False
     timed_out_26_days: bool = False
@@ -86,6 +123,12 @@ class ScoringState:
     agent_called_bkr_check: bool = False
     agent_final_decision: Optional[str] = None  # "approve" or "reject"
     phase3_complete: bool = False
+
+    # Premature action penalties
+    fraud_check_before_phase3: bool = False
+    bkr_check_before_phase3: bool = False
+    finalized_before_phase3: bool = False
+    finalized_without_checks: bool = False
 
     def record_agent_email_phase1(self):
         self.agent_emailed_in_phase1 = True
@@ -103,14 +146,22 @@ class ScoringState:
     def record_timeout(self):
         self.timed_out_26_days = True
 
-    def record_fraud_check(self):
+    def record_fraud_check(self, in_phase3: bool):
         self.agent_called_fraud_check = True
+        if not in_phase3:
+            self.fraud_check_before_phase3 = True
 
-    def record_bkr_check(self):
+    def record_bkr_check(self, in_phase3: bool):
         self.agent_called_bkr_check = True
+        if not in_phase3:
+            self.bkr_check_before_phase3 = True
 
-    def record_final_decision(self, decision: str):
+    def record_final_decision(self, decision: str, in_phase3: bool):
         self.agent_final_decision = decision
+        if not in_phase3:
+            self.finalized_before_phase3 = True
+        if not self.agent_called_fraud_check or not self.agent_called_bkr_check:
+            self.finalized_without_checks = True
 
     # ----- Score computation -----
 
@@ -165,6 +216,7 @@ class ScoringState:
         - +1 for calling fraud check
         - +1 for calling BKR check
         - +1 if final decision matches ground truth
+        - Penalties for premature actions
         Max: 4 points, returned as fraction of max.
         """
         score = 0.0
@@ -197,7 +249,17 @@ class ScoringState:
             if self.agent_final_decision == gt_decision:
                 score += 1.0
 
-        return round(score / max_score, 4) if max_score > 0 else 0.0
+        # Penalties for premature actions (-0.5 each)
+        if self.fraud_check_before_phase3:
+            score -= 0.5
+        if self.bkr_check_before_phase3:
+            score -= 0.5
+        if self.finalized_before_phase3:
+            score -= 0.5
+        if self.finalized_without_checks:
+            score -= 0.5
+
+        return round(max(0.0, score) / max_score, 4) if max_score > 0 else 0.0
 
     def overall_score(self) -> dict:
         """Compute the overall score as percentage of total possible points."""

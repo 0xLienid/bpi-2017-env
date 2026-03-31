@@ -8,10 +8,117 @@ Usage:
 from __future__ import annotations
 
 import json
+import re
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Optional
+
+
+def extract_offer_from_email(body):
+    """Extract offer parameters from an email body. Returns dict or None."""
+    def _find_number(patterns):
+        for pat in patterns:
+            m = re.search(pat, body, re.IGNORECASE)
+            if m:
+                val = m.group(1).replace(",", "")
+                try:
+                    return float(val)
+                except ValueError:
+                    continue
+        return None
+
+    offered_amount = _find_number([
+        r"(?:offered\s*amount|loan\s*amount|principal)[:\s]*[€]?\s*([\d,\.]+)",
+        r"[€]\s*([\d,\.]+)\s*(?:loan|amount)",
+    ])
+    monthly_cost = _find_number([
+        r"(?:monthly\s*(?:cost|payment|repayment|installment))[:\s]*[€]?\s*([\d,\.]+)",
+        r"[€]\s*([\d,\.]+)\s*(?:per\s*month|monthly|/\s*month)",
+    ])
+    num_terms = _find_number([
+        r"(?:number\s*of\s*terms|term|duration|repayment\s*period)[:\s]*(\d+)\s*(?:months?)?",
+        r"(\d+)\s*months?\s*(?:term|duration|repayment)",
+    ])
+    first_withdrawal = _find_number([
+        r"(?:first\s*withdrawal(?:\s*amount)?|initial\s*(?:withdrawal|disbursement))[:\s]*[€]?\s*([\d,\.]+)",
+    ])
+
+    if offered_amount is not None and monthly_cost is not None:
+        return {
+            "offered_amount": offered_amount,
+            "monthly_cost": monthly_cost,
+            "number_of_terms": int(num_terms) if num_terms else None,
+            "first_withdrawal_amount": first_withdrawal,
+        }
+    return None
+
+
+def load_ground_truth(task_dir):
+    """Load ground truth offer from the task's config.json -> task_data.json."""
+    config_file = task_dir / "config.json"
+    if not config_file.exists():
+        return None
+    try:
+        config = json.loads(config_file.read_text())
+        task_path = Path(config["task"]["path"])
+        # task_data.json is in the environment dir
+        task_data_file = task_path / "environment" / "task_data.json"
+        if not task_data_file.exists():
+            return None
+        task_data = json.loads(task_data_file.read_text())
+        return task_data.get("ground_truth", {})
+    except (json.JSONDecodeError, KeyError):
+        return None
+
+
+def extract_last_agent_offer(trajectory):
+    """Find the last offer the agent sent from the trajectory."""
+    try:
+        data = json.loads(trajectory.read_text())
+    except (json.JSONDecodeError, KeyError):
+        return None
+
+    last_offer = None
+    for s in data.get("steps", []):
+        for tc in (s.get("tool_calls") or []):
+            name = tc.get("function_name", "")
+            if "send_email" in name or "reply_email" in name:
+                args = tc.get("arguments", {})
+                body = args.get("body", "") if isinstance(args, dict) else ""
+                offer = extract_offer_from_email(body)
+                if offer:
+                    last_offer = offer
+    return last_offer
+
+
+def format_offer(offer):
+    """Format an offer dict for display."""
+    if not offer:
+        return "none"
+    parts = []
+    if offer.get("offered_amount") is not None:
+        parts.append("amt=%.0f" % offer["offered_amount"])
+    if offer.get("monthly_cost") is not None:
+        parts.append("monthly=%.2f" % offer["monthly_cost"])
+    if offer.get("number_of_terms") is not None:
+        parts.append("terms=%d" % offer["number_of_terms"])
+    if offer.get("first_withdrawal_amount") is not None:
+        parts.append("1st=%.0f" % offer["first_withdrawal_amount"])
+    return ", ".join(parts) if parts else "none"
+
+
+def offer_diff_pct(agent_offer, gt_offer):
+    """Compute average percentage difference between agent and ground truth offers."""
+    if not agent_offer or not gt_offer:
+        return None
+    diffs = []
+    for key in ["offered_amount", "monthly_cost", "number_of_terms", "first_withdrawal_amount"]:
+        a = agent_offer.get(key)
+        g = gt_offer.get(key)
+        if a is not None and g is not None and g > 0:
+            diffs.append(abs(a - g) / g)
+    return sum(diffs) / len(diffs) if diffs else None
 
 
 # MCP tool prefix to strip for cleaner display
@@ -123,6 +230,7 @@ def main():
     agg_tool_counts = Counter()  # type: Counter[str]
     agg_tool_by_phase = defaultdict(Counter)  # type: defaultdict[str, Counter[str]]
     n_trajectories = 0
+    offer_comparisons = []
 
     for task_dir in task_dirs:
         task_name = task_dir.name
@@ -135,13 +243,23 @@ def main():
         trajectory_file = task_dir / "agent" / "trajectory.json"
         traj = analyze_trajectory(trajectory_file) if trajectory_file.exists() else None
 
-        if breakdown:
-            scores.append(breakdown)
+        # Offer comparison
+        agent_offer = extract_last_agent_offer(trajectory_file) if trajectory_file.exists() else None
+        gt = load_ground_truth(task_dir)
+        gt_offer = None
+        if gt:
+            gt_offer = gt.get("accepted_offer") or gt.get("last_offer")
 
-            if breakdown.get("was_fraud_attempt"):
-                fraud_attempts += 1
-                if not breakdown.get("agent_rejected"):
-                    fraud_missed += 1
+        if not breakdown:
+            failed_tasks.append(task_name)
+            continue
+
+        scores.append(breakdown)
+
+        if breakdown.get("was_fraud_attempt"):
+            fraud_attempts += 1
+            if not breakdown.get("agent_rejected"):
+                fraud_missed += 1
 
         if traj:
             n_trajectories += 1
@@ -156,20 +274,25 @@ def main():
         agent_steps = traj["total_steps"] if traj else None
         non_wait = traj["non_wait_steps"] if traj else None
 
-        if breakdown:
-            print("  %s: score=%.2f  steps=%s (%s non-wait)  "
-                  "fraud=%s  rejected=%s  finalized=%s" % (
-                      task_name,
-                      breakdown.get("overall_pct", 0),
-                      agent_steps or "?",
-                      non_wait or "?",
-                      "Y" if breakdown.get("was_fraud_attempt") else "N",
-                      "Y" if breakdown.get("agent_rejected") else "N",
-                      "Y" if breakdown.get("finalized") else "N",
-                  ))
-        else:
-            failed_tasks.append(task_name)
-            print("  %s: NO SCORE (verifier may have failed)" % task_name)
+        diff = offer_diff_pct(agent_offer, gt_offer)
+        if agent_offer or gt_offer:
+            offer_comparisons.append({
+                "task": task_name,
+                "agent": agent_offer,
+                "ground_truth": gt_offer,
+                "diff_pct": diff,
+            })
+
+        print("  %s: score=%.2f  steps=%s (%s non-wait)  "
+              "fraud=%s  rejected=%s  finalized=%s" % (
+                  task_name,
+                  breakdown.get("overall_pct", 0),
+                  agent_steps or "?",
+                  non_wait or "?",
+                  "Y" if breakdown.get("was_fraud_attempt") else "N",
+                  "Y" if breakdown.get("agent_rejected") else "N",
+                  "Y" if breakdown.get("finalized") else "N",
+              ))
 
     # --- Summary ---
     print()
@@ -193,7 +316,7 @@ def main():
         print("Fraud detection: no fraud attempts in this run")
 
     if failed_tasks:
-        print("Failed tasks:    %s" % ", ".join(failed_tasks))
+        print("Skipped (no score): %d (%s)" % (len(failed_tasks), ", ".join(failed_tasks)))
 
     # --- Tool call breakdown ---
     if agg_tool_counts:
@@ -220,6 +343,29 @@ def main():
             print("  [%s] (%d calls)" % (phase.upper(), phase_total))
             for tool, count in sorted(counts.items(), key=lambda x: -x[1]):
                 print("    %-23s %4d" % (tool, count))
+
+    # --- Offer comparison ---
+    if offer_comparisons:
+        print()
+        print("Offer comparison (agent's last offer vs ground truth):")
+        diffs_with_values = []
+        for oc in offer_comparisons:
+            agent_str = format_offer(oc["agent"])
+            gt_str = format_offer(oc["ground_truth"])
+            diff = oc["diff_pct"]
+            diff_str = "%.1f%% diff" % (diff * 100) if diff is not None else "n/a"
+            print("  %s:" % oc["task"])
+            print("    agent:  %s" % agent_str)
+            print("    truth:  %s" % gt_str)
+            print("    diff:   %s" % diff_str)
+            if diff is not None:
+                diffs_with_values.append(diff)
+
+        if diffs_with_values:
+            avg_diff = sum(diffs_with_values) / len(diffs_with_values)
+            print()
+            print("  Avg offer diff: %.1f%% (across %d tasks with offers)" % (
+                avg_diff * 100, len(diffs_with_values)))
 
     print("=" * 60)
 
