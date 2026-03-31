@@ -28,20 +28,22 @@ def _parse_offer_from_text(text):
                     continue
         return None
 
+    _CUR = r"(?:€|EUR)\s*"  # matches € or EUR followed by optional space
+
     offered_amount = _find_number([
-        r"(?:offered\s*amount|loan\s*amount|principal)[:\s]*[€]?\s*([\d,\.]+)",
-        r"[€]\s*([\d,\.]+)\s*(?:loan|amount)",
+        r"(?:offered\s*amount|loan\s*amount|principal)[:\s]*" + _CUR + r"?([\d,\.]+)",
+        _CUR + r"([\d,\.]+)\s*(?:loan|amount)",
     ])
     monthly_cost = _find_number([
-        r"(?:monthly\s*(?:cost|payment|repayment|installment))[:\s]*[€]?\s*([\d,\.]+)",
-        r"[€]\s*([\d,\.]+)\s*(?:per\s*month|monthly|/\s*month)",
+        r"(?:monthly\s*(?:cost|payment|repayment|installment))[:\s]*" + _CUR + r"?([\d,\.]+)",
+        _CUR + r"([\d,\.]+)\s*(?:per\s*month|monthly|/\s*month)",
     ])
     num_terms = _find_number([
         r"(?:number\s*of\s*terms|term|duration|repayment\s*period)[:\s]*(\d+)\s*(?:months?)?",
         r"(\d+)\s*months?\s*(?:term|duration|repayment)",
     ])
     first_withdrawal = _find_number([
-        r"(?:first\s*withdrawal(?:\s*amount)?|initial\s*(?:withdrawal|disbursement))[:\s]*[€]?\s*([\d,\.]+)",
+        r"(?:first\s*withdrawal(?:\s*amount)?|initial\s*(?:withdrawal|disbursement))[:\s]*" + _CUR + r"?([\d,\.]+)",
     ])
 
     if offered_amount is not None and monthly_cost is not None:
