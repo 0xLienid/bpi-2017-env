@@ -179,6 +179,8 @@ class EnvironmentState:
         return result
 
     def send_email(self, to: str, subject: str, body: str) -> dict:
+        if self.finalized:
+            return {"error": "Task has been finalized. No further actions can be taken."}
         result = self.agent_inbox.send(to, subject, body, self.current_time.isoformat())
 
         self._log_event("agent_send_email", {"to": to, "subject": subject, "body": body})
@@ -202,6 +204,8 @@ class EnvironmentState:
         return result
 
     def reply_email(self, message_id: str, body: str) -> dict:
+        if self.finalized:
+            return {"error": "Task has been finalized. No further actions can be taken."}
         # Find the original to get the recipient
         original = None
         for msg in self.agent_inbox.messages:
@@ -262,14 +266,10 @@ class EnvironmentState:
         if self.phase == Phase.OFFER and self.phase2_start_time:
             elapsed = (self.current_time - self.phase2_start_time).days
             if elapsed >= self.TIMEOUT_DAYS:
-                self.scoring.record_timeout()
-                self.scoring.phase2_complete = True
-                self.phase = Phase.FINALIZED
-                self.finalized = True
-                self._log_event("timeout_26_days", {})
+                self._auto_cancel()
                 return {
                     "time": self.current_time.isoformat(),
-                    "event": "TIMEOUT: 26 days have elapsed. The offer period has expired and the application is automatically cancelled.",
+                    "event": "TIMEOUT: 26 days have elapsed with no client response. The application has been automatically cancelled. No further action is needed.",
                 }
 
         # During offer phase, re-check if a silent client will now respond
@@ -338,6 +338,15 @@ class EnvironmentState:
             self.scoring.had_missing_fields_phase3 = len(self.missing_fields_phase3) > 0
 
     # ---- Internal helpers ----
+
+    def _auto_cancel(self):
+        """Auto-cancel the application after 26 days of no response."""
+        self.scoring.record_timeout()
+        self.scoring.phase2_complete = True
+        self.finalized = True
+        self.phase = Phase.FINALIZED
+        self._log_event("timeout_26_days_auto_cancel", {})
+        self._save_state()
 
     def _handle_client_response(self, agent_email_body: str):
         """Determine if/how the client responds to an agent email."""

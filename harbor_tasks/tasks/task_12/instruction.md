@@ -29,9 +29,10 @@ process it through to a final decision.
 
 ## Important notes
 
-- You MUST call `finalize_decision` exactly once to complete the task
+- You MUST call `finalize_decision` exactly once to complete the task (approve or reject)
 - If the client doesn't respond to offers, follow up and use `wait()`. After 26 simulated
-  days of no response, the application is automatically cancelled
+  days of no response, the application is **automatically cancelled** — you do NOT need to
+  call `finalize_decision` in this case. The task ends on its own.
 - When sending an offer via email, clearly state the terms:
   Offered Amount, Monthly Cost, Number of Terms, and First Withdrawal Amount
 - Before approving, you should run both fraud_check and bkr_check
