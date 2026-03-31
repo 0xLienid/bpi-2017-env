@@ -1,0 +1,20 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY mcp_server/ ./mcp_server/
+COPY data/ ./data/
+COPY task_data.json .
+
+RUN mkdir -p /shared
+
+ENV TASK_DATA_PATH=/app/task_data.json
+ENV BSN_REGISTRY_PATH=/app/data/bsn_registry.json
+ENV BKR_REGISTRY_PATH=/app/data/bkr_registry.json
+
+EXPOSE 8000
+
+CMD ["python", "-m", "mcp_server.server"]

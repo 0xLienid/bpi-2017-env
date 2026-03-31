@@ -1,0 +1,47 @@
+{
+  "profile": {
+    "task_index": 1,
+    "application_id": "Application_1691306052",
+    "offer_ids": [
+      "Offer_1669071500"
+    ],
+    "name": "Anna Jansen",
+    "date_of_birth": "1958-08-17",
+    "bsn": "838637942",
+    "email": "anna.jansen77@gmail.com",
+    "income": 1000.0,
+    "is_fraudster": false,
+    "is_forgetful": true,
+    "propensity_to_respond": 0.6,
+    "should_ghost": false,
+    "desired_monthly_payment": 200.0,
+    "maximum_monthly_payment": 250.29,
+    "desired_term": 33,
+    "maximum_term": 44,
+    "_final_state": "rejected",
+    "_loan_goal": "Home improvement",
+    "_application_type": "New credit",
+    "_requested_amount": 10000.0,
+    "_accepted_offer": null,
+    "_last_offer": {
+      "offered_amount": 6000.0,
+      "monthly_cost": 200.0,
+      "number_of_terms": 33,
+      "first_withdrawal_amount": 500.0
+    }
+  },
+  "ground_truth": {
+    "final_state": "rejected",
+    "loan_goal": "Home improvement",
+    "application_type": "New credit",
+    "requested_amount": 10000.0,
+    "has_handle_leads": true,
+    "accepted_offer": null,
+    "last_offer": {
+      "offered_amount": 6000.0,
+      "monthly_cost": 200.0,
+      "number_of_terms": 33,
+      "first_withdrawal_amount": 500.0
+    }
+  }
+}

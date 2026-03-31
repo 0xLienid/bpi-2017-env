@@ -1,0 +1,77 @@
+[
+  {
+    "name": "Thomas van der Velde",
+    "bsn": "043321811",
+    "total_active_credits": 4
+  },
+  {
+    "name": "Anna Jansen",
+    "bsn": "838637942",
+    "total_active_credits": 2
+  },
+  {
+    "name": "Dirk de Jong",
+    "bsn": "161559402",
+    "total_active_credits": 4
+  },
+  {
+    "name": "Maria Bakker",
+    "bsn": "959310344",
+    "total_active_credits": 3
+  },
+  {
+    "name": "Pieter Smit",
+    "bsn": "255341921",
+    "total_active_credits": 5
+  },
+  {
+    "name": "Laura Fischer",
+    "bsn": "503056418",
+    "total_active_credits": 5
+  },
+  {
+    "name": "Willem de Boer",
+    "bsn": "672423881",
+    "total_active_credits": 1
+  },
+  {
+    "name": "Sophie Meijer",
+    "bsn": "871012261",
+    "total_active_credits": 0
+  },
+  {
+    "name": "Jeroen Groot",
+    "bsn": "845146270",
+    "total_active_credits": 1
+  },
+  {
+    "name": "Linda Kuipers",
+    "bsn": "148932526",
+    "total_active_credits": 2
+  },
+  {
+    "name": "Ruben Dijkman",
+    "bsn": "117182278",
+    "total_active_credits": 1
+  },
+  {
+    "name": "Esther Vos",
+    "bsn": "346578711",
+    "total_active_credits": 4
+  },
+  {
+    "name": "Frank Mulder",
+    "bsn": "010310514",
+    "total_active_credits": 5
+  },
+  {
+    "name": "Iris Visser",
+    "bsn": "376311654",
+    "total_active_credits": 5
+  },
+  {
+    "name": "Mark Hendriks",
+    "bsn": "065133389",
+    "total_active_credits": 0
+  }
+]

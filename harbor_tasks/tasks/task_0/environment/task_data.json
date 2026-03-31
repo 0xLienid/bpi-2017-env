@@ -1,0 +1,57 @@
+{
+  "profile": {
+    "task_index": 0,
+    "application_id": "Application_652823628",
+    "offer_ids": [
+      "Offer_148581083"
+    ],
+    "name": "Thomas van der Velde",
+    "date_of_birth": "1966-03-27",
+    "bsn": "043321811",
+    "email": "thomas.velde@outlook.com",
+    "income": 22112.01,
+    "is_fraudster": false,
+    "is_forgetful": true,
+    "propensity_to_respond": 0.75,
+    "should_ghost": false,
+    "desired_monthly_payment": 498.29,
+    "maximum_monthly_payment": 527.16,
+    "desired_term": 44,
+    "maximum_term": 46,
+    "_final_state": "approved",
+    "_loan_goal": "Existing loan takeover",
+    "_application_type": "New credit",
+    "_requested_amount": 20000.0,
+    "_accepted_offer": {
+      "offered_amount": 20000.0,
+      "monthly_cost": 498.29,
+      "number_of_terms": 44,
+      "first_withdrawal_amount": 20000.0
+    },
+    "_last_offer": {
+      "offered_amount": 20000.0,
+      "monthly_cost": 498.29,
+      "number_of_terms": 44,
+      "first_withdrawal_amount": 20000.0
+    }
+  },
+  "ground_truth": {
+    "final_state": "approved",
+    "loan_goal": "Existing loan takeover",
+    "application_type": "New credit",
+    "requested_amount": 20000.0,
+    "has_handle_leads": true,
+    "accepted_offer": {
+      "offered_amount": 20000.0,
+      "monthly_cost": 498.29,
+      "number_of_terms": 44,
+      "first_withdrawal_amount": 20000.0
+    },
+    "last_offer": {
+      "offered_amount": 20000.0,
+      "monthly_cost": 498.29,
+      "number_of_terms": 44,
+      "first_withdrawal_amount": 20000.0
+    }
+  }
+}

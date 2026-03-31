@@ -1,0 +1,47 @@
+{
+  "profile": {
+    "task_index": 6,
+    "application_id": "Application_1266995739",
+    "offer_ids": [
+      "Offer_467024374"
+    ],
+    "name": "Willem de Boer",
+    "date_of_birth": "2001-01-12",
+    "bsn": "672423881",
+    "email": "willem.boer@outlook.nl",
+    "income": 9860.57,
+    "is_fraudster": false,
+    "is_forgetful": true,
+    "propensity_to_respond": 0.67,
+    "should_ghost": true,
+    "desired_monthly_payment": 195.73,
+    "maximum_monthly_payment": 234.12,
+    "desired_term": 40,
+    "maximum_term": 57,
+    "_final_state": "cancelled",
+    "_loan_goal": "Existing loan takeover",
+    "_application_type": "New credit",
+    "_requested_amount": 7000.0,
+    "_accepted_offer": null,
+    "_last_offer": {
+      "offered_amount": 7000.0,
+      "monthly_cost": 195.73,
+      "number_of_terms": 40,
+      "first_withdrawal_amount": 0.0
+    }
+  },
+  "ground_truth": {
+    "final_state": "cancelled",
+    "loan_goal": "Existing loan takeover",
+    "application_type": "New credit",
+    "requested_amount": 7000.0,
+    "has_handle_leads": true,
+    "accepted_offer": null,
+    "last_offer": {
+      "offered_amount": 7000.0,
+      "monthly_cost": 195.73,
+      "number_of_terms": 40,
+      "first_withdrawal_amount": 0.0
+    }
+  }
+}

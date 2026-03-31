@@ -1,0 +1,57 @@
+{
+  "profile": {
+    "task_index": 9,
+    "application_id": "Application_1710223761",
+    "offer_ids": [
+      "Offer_108214080"
+    ],
+    "name": "Linda Kuipers",
+    "date_of_birth": "2001-10-16",
+    "bsn": "148932526",
+    "email": "linda.kuipers@gmail.com",
+    "income": 7924.53,
+    "is_fraudster": false,
+    "is_forgetful": true,
+    "propensity_to_respond": 0.73,
+    "should_ghost": false,
+    "desired_monthly_payment": 220.0,
+    "maximum_monthly_payment": 273.82,
+    "desired_term": 57,
+    "maximum_term": 72,
+    "_final_state": "cancelled",
+    "_loan_goal": "Car",
+    "_application_type": "New credit",
+    "_requested_amount": 11000.0,
+    "_accepted_offer": {
+      "offered_amount": 11000.0,
+      "monthly_cost": 220.0,
+      "number_of_terms": 57,
+      "first_withdrawal_amount": 0.0
+    },
+    "_last_offer": {
+      "offered_amount": 11000.0,
+      "monthly_cost": 220.0,
+      "number_of_terms": 57,
+      "first_withdrawal_amount": 0.0
+    }
+  },
+  "ground_truth": {
+    "final_state": "cancelled",
+    "loan_goal": "Car",
+    "application_type": "New credit",
+    "requested_amount": 11000.0,
+    "has_handle_leads": true,
+    "accepted_offer": {
+      "offered_amount": 11000.0,
+      "monthly_cost": 220.0,
+      "number_of_terms": 57,
+      "first_withdrawal_amount": 0.0
+    },
+    "last_offer": {
+      "offered_amount": 11000.0,
+      "monthly_cost": 220.0,
+      "number_of_terms": 57,
+      "first_withdrawal_amount": 0.0
+    }
+  }
+}

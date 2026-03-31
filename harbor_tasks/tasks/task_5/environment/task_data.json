@@ -1,0 +1,58 @@
+{
+  "profile": {
+    "task_index": 5,
+    "application_id": "Application_1085880569",
+    "offer_ids": [
+      "Offer_213805292",
+      "Offer_644568599"
+    ],
+    "name": "Laura Fischer",
+    "date_of_birth": "1975-12-13",
+    "bsn": "503056418",
+    "email": "laura.fischer@gmail.com",
+    "income": 6811.03,
+    "is_fraudster": false,
+    "is_forgetful": true,
+    "propensity_to_respond": 0.65,
+    "should_ghost": false,
+    "desired_monthly_payment": 130.83,
+    "maximum_monthly_payment": 185.03,
+    "desired_term": 132,
+    "maximum_term": 172,
+    "_final_state": "cancelled",
+    "_loan_goal": "Existing loan takeover",
+    "_application_type": "New credit",
+    "_requested_amount": 13000.0,
+    "_accepted_offer": {
+      "offered_amount": 13000.0,
+      "monthly_cost": 143.91,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 400.0
+    },
+    "_last_offer": {
+      "offered_amount": 13000.0,
+      "monthly_cost": 141.45,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 400.0
+    }
+  },
+  "ground_truth": {
+    "final_state": "cancelled",
+    "loan_goal": "Existing loan takeover",
+    "application_type": "New credit",
+    "requested_amount": 13000.0,
+    "has_handle_leads": true,
+    "accepted_offer": {
+      "offered_amount": 13000.0,
+      "monthly_cost": 143.91,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 400.0
+    },
+    "last_offer": {
+      "offered_amount": 13000.0,
+      "monthly_cost": 141.45,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 400.0
+    }
+  }
+}

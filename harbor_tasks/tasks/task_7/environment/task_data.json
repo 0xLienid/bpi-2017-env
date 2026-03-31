@@ -1,0 +1,57 @@
+{
+  "profile": {
+    "task_index": 7,
+    "application_id": "Application_1878239836",
+    "offer_ids": [
+      "Offer_117620760"
+    ],
+    "name": "Sophie Meijer",
+    "date_of_birth": "1968-08-27",
+    "bsn": "871012261",
+    "email": "sophie.meijer@yahoo.com",
+    "income": 5220.94,
+    "is_fraudster": false,
+    "is_forgetful": true,
+    "propensity_to_respond": 0.7,
+    "should_ghost": false,
+    "desired_monthly_payment": 211.9,
+    "maximum_monthly_payment": 254.06,
+    "desired_term": 84,
+    "maximum_term": 103,
+    "_final_state": "rejected",
+    "_loan_goal": "Home improvement",
+    "_application_type": "New credit",
+    "_requested_amount": 15000.0,
+    "_accepted_offer": {
+      "offered_amount": 15000.0,
+      "monthly_cost": 211.9,
+      "number_of_terms": 84,
+      "first_withdrawal_amount": 328.0
+    },
+    "_last_offer": {
+      "offered_amount": 15000.0,
+      "monthly_cost": 211.9,
+      "number_of_terms": 84,
+      "first_withdrawal_amount": 328.0
+    }
+  },
+  "ground_truth": {
+    "final_state": "rejected",
+    "loan_goal": "Home improvement",
+    "application_type": "New credit",
+    "requested_amount": 15000.0,
+    "has_handle_leads": true,
+    "accepted_offer": {
+      "offered_amount": 15000.0,
+      "monthly_cost": 211.9,
+      "number_of_terms": 84,
+      "first_withdrawal_amount": 328.0
+    },
+    "last_offer": {
+      "offered_amount": 15000.0,
+      "monthly_cost": 211.9,
+      "number_of_terms": 84,
+      "first_withdrawal_amount": 328.0
+    }
+  }
+}

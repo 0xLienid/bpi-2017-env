@@ -1,0 +1,58 @@
+{
+  "profile": {
+    "task_index": 2,
+    "application_id": "Application_428409768",
+    "offer_ids": [
+      "Offer_1209840642",
+      "Offer_997411923"
+    ],
+    "name": "Dirk de Jong",
+    "date_of_birth": "1965-06-01",
+    "bsn": "161559402",
+    "email": "dirk.dejong@yahoo.nl",
+    "income": 7889.74,
+    "is_fraudster": false,
+    "is_forgetful": true,
+    "propensity_to_respond": 0.78,
+    "should_ghost": false,
+    "desired_monthly_payment": 144.53,
+    "maximum_monthly_payment": 188.24,
+    "desired_term": 132,
+    "maximum_term": 178,
+    "_final_state": "approved",
+    "_loan_goal": "Home improvement",
+    "_application_type": "New credit",
+    "_requested_amount": 15000.0,
+    "_accepted_offer": {
+      "offered_amount": 15000.0,
+      "monthly_cost": 158.98,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 15000.0
+    },
+    "_last_offer": {
+      "offered_amount": 15000.0,
+      "monthly_cost": 158.98,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 15000.0
+    }
+  },
+  "ground_truth": {
+    "final_state": "approved",
+    "loan_goal": "Home improvement",
+    "application_type": "New credit",
+    "requested_amount": 15000.0,
+    "has_handle_leads": true,
+    "accepted_offer": {
+      "offered_amount": 15000.0,
+      "monthly_cost": 158.98,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 15000.0
+    },
+    "last_offer": {
+      "offered_amount": 15000.0,
+      "monthly_cost": 158.98,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 15000.0
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "profile": {
+    "task_index": 10,
+    "application_id": "Application_1529124572",
+    "offer_ids": [
+      "Offer_1217920740"
+    ],
+    "name": "Ruben Dijkman",
+    "date_of_birth": "2000-01-30",
+    "bsn": "117182278",
+    "email": "ruben.dijkman@hotmail.nl",
+    "income": 14459.35,
+    "is_fraudster": false,
+    "is_forgetful": true,
+    "propensity_to_respond": 0.84,
+    "should_ghost": false,
+    "desired_monthly_payment": 250.0,
+    "maximum_monthly_payment": 272.82,
+    "desired_term": 22,
+    "maximum_term": 27,
+    "_final_state": "approved",
+    "_loan_goal": "Other, see explanation",
+    "_application_type": "New credit",
+    "_requested_amount": 5000.0,
+    "_accepted_offer": null,
+    "_last_offer": {
+      "offered_amount": 5000.0,
+      "monthly_cost": 250.0,
+      "number_of_terms": 22,
+      "first_withdrawal_amount": 0.0
+    }
+  },
+  "ground_truth": {
+    "final_state": "approved",
+    "loan_goal": "Other, see explanation",
+    "application_type": "New credit",
+    "requested_amount": 5000.0,
+    "has_handle_leads": true,
+    "accepted_offer": null,
+    "last_offer": {
+      "offered_amount": 5000.0,
+      "monthly_cost": 250.0,
+      "number_of_terms": 22,
+      "first_withdrawal_amount": 0.0
+    }
+  }
+}

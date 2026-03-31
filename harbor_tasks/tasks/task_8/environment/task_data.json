@@ -1,0 +1,57 @@
+{
+  "profile": {
+    "task_index": 8,
+    "application_id": "Application_619403287",
+    "offer_ids": [
+      "Offer_1534843733"
+    ],
+    "name": "Jeroen Groot",
+    "date_of_birth": "1966-07-10",
+    "bsn": "845146270",
+    "email": "jeroen.groot@live.com",
+    "income": 20086.76,
+    "is_fraudster": false,
+    "is_forgetful": true,
+    "propensity_to_respond": 0.6,
+    "should_ghost": false,
+    "desired_monthly_payment": 282.96,
+    "maximum_monthly_payment": 348.19,
+    "desired_term": 60,
+    "maximum_term": 81,
+    "_final_state": "approved",
+    "_loan_goal": "Car",
+    "_application_type": "New credit",
+    "_requested_amount": 15000.0,
+    "_accepted_offer": {
+      "offered_amount": 15000.0,
+      "monthly_cost": 282.96,
+      "number_of_terms": 60,
+      "first_withdrawal_amount": 14007.0
+    },
+    "_last_offer": {
+      "offered_amount": 15000.0,
+      "monthly_cost": 282.96,
+      "number_of_terms": 60,
+      "first_withdrawal_amount": 14007.0
+    }
+  },
+  "ground_truth": {
+    "final_state": "approved",
+    "loan_goal": "Car",
+    "application_type": "New credit",
+    "requested_amount": 15000.0,
+    "has_handle_leads": true,
+    "accepted_offer": {
+      "offered_amount": 15000.0,
+      "monthly_cost": 282.96,
+      "number_of_terms": 60,
+      "first_withdrawal_amount": 14007.0
+    },
+    "last_offer": {
+      "offered_amount": 15000.0,
+      "monthly_cost": 282.96,
+      "number_of_terms": 60,
+      "first_withdrawal_amount": 14007.0
+    }
+  }
+}

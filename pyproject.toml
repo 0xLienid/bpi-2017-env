@@ -1,0 +1,10 @@
+[project]
+name = "afterquery-bpi"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.8"
+dependencies = [
+    "faker>=35.2.2",
+    "httpx>=0.28.1",
+    "python-dotenv>=1.0.1",
+]

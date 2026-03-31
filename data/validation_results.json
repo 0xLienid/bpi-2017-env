@@ -1,0 +1,602 @@
+[
+  {
+    "valid": true,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log and the final state is 'approved', so is_fraudster being false is consistent."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "W_Handle leads is in the event log, so is_forgetful being true is consistent."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "The propensity_to_respond value of 0.75 is a reasonable value given the number of W_Call after offers resume/start events (1 start, 1 resume)."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": true,
+        "reason": "At least one offer was accepted (Offer_148581083), so should_ghost being false is correct."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "Desired and maximum monthly payment and term are consistent with the accepted offer's terms (498.29, 44) and are within a reasonable range."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client was approved, and the income of 22112.01 is reasonable to support a loan of 20000.0 with a monthly cost of 498.29."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": true,
+        "reason": "The client was approved, and total_active_credits is 4, which is less than 6."
+      }
+    ]
+  },
+  {
+    "valid": true,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log, and the final state is 'rejected'. The profile's 'is_fraudster' is false, which is consistent with the rule's allowance for low probability of true in this scenario."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "W_Handle leads is present in the event log, so 'is_forgetful' should be true, which it is in the profile."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "There are multiple 'W_Call after offers [resume]' events (2 resumes after initial start/suspend, then another suspend/ate_abort), suggesting more follow-ups were needed. A propensity of 0.6 is a reasonable lower value given these events."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": true,
+        "reason": "No offer was accepted (offer.accepted is false). The offer has an 'O_Refused' event, which is equivalent to O_Cancelled for this rule's purpose. Therefore, 'should_ghost' should be true, which it is."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "The last offer has a monthly cost of 200.0 and terms of 33. The profile's desired_monthly_payment (200.0) and desired_term (33) match these values, and maximum values are in a reasonable range."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client is a rejected non-fraudster. The income (1000.0) is low relative to the requested amount (10000.0), which is consistent with a rejection reason."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": true,
+        "reason": "The client is a rejected non-fraudster. The BKR total_active_credits is 2, which is < 6. This is consistent with the rule, as the rejection is explained by low income, not high BKR credits."
+      }
+    ]
+  },
+  {
+    "valid": false,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log and the final state is 'approved', so is_fraudster=false is consistent."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "W_Handle leads is in the event log, so is_forgetful=true is consistent."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "The propensity_to_respond value of 0.78 is reasonable given the event log, which includes multiple 'W_Call after offers' events, some of which were suspended and resumed, indicating some follow-up was needed."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": false,
+        "reason": "At least one offer (Offer_997411923) was accepted, so should_ghost must be False. However, the profile sets should_ghost to false, which is correct. The rule states 'If at least one offer was accepted, should_ghost MUST be False'. The profile has should_ghost: false, which is correct. The rule also states 'If NO offer was accepted AND at least one offer has O_Cancelled, should_ghost MUST be True'. This condition is not met. The rule also states 'If no offers exist or none were cancelled, should_ghost should be False'. This condition is not met. Therefore, the profile is consistent with the rule."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "The desired/maximum monthly payment and term values are in a reasonable range relative to the accepted offer's monthly cost (158.98) and terms (120)."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client was approved, and the income of 7889.74 comfortably supports the loan with a monthly cost of 158.98."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": true,
+        "reason": "The client was approved, and the BKR total_active_credits is 4, which is less than 6."
+      }
+    ]
+  },
+  {
+    "valid": true,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log, and the final state is 'approved', so is_fraudster being false is consistent."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "W_Handle leads is present in the event log, so is_forgetful being true is consistent."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "There are multiple 'W_Call after offers [resume]' events, suggesting a lower propensity to respond, which is consistent with a propensity_to_respond of 0.6."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": true,
+        "reason": "One offer (Offer_774210695) has 'O_Accepted' in its events, so should_ghost must be false, which it is."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "The desired/maximum monthly payment and term values are within a reasonable range relative to the last offer's terms (monthly cost 252.73, terms 72)."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client is approved, and the income of 12556.77 is a reasonable positive value that could support a loan."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": true,
+        "reason": "The client is approved, and the BKR total_active_credits is 3, which is less than 6."
+      }
+    ]
+  },
+  {
+    "valid": true,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log, and the final state is 'cancelled', so is_fraudster being false is consistent."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "W_Handle leads is in the event log, so is_forgetful being true is consistent."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "There are multiple W_Call after offers resume/start events (suspend/resume/suspend), suggesting a lower propensity to respond, which is consistent with 0.73."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": true,
+        "reason": "An offer was accepted (offer_id: Offer_607758096, accepted: true), so should_ghost must be false."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "Desired and maximum monthly payment/term are consistent with the accepted offer's terms (366.08, 120 terms)."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client is cancelled, so income is not constrained and 16736.49 is a reasonable positive value."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": true,
+        "reason": "The client is cancelled, and total_active_credits is 5, which is < 6."
+      }
+    ]
+  },
+  {
+    "valid": true,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log and the final state is 'cancelled', so is_fraudster being false is consistent."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "W_Handle leads is present in the event log, so is_forgetful being true is consistent."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "There are multiple W_Call after offers resume/start events, suggesting a lower propensity to respond, so 0.65 is a reasonable value."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": true,
+        "reason": "Both offers in the trace have 'accepted': true, therefore should_ghost must be false, which it is."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "The desired/maximum monthly payment and term values are in a reasonable range relative to the accepted/last offer's terms (143.91/120 and 141.45/120)."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client is cancelled, so income is not constrained. 6811.03 is a reasonable positive value."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": true,
+        "reason": "The client is cancelled, and total_active_credits is 5, which is less than 6, satisfying the rule."
+      }
+    ]
+  },
+  {
+    "valid": true,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log and the final state is 'cancelled', so is_fraudster=false is consistent."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "There is looping (resume events) on W_Call incomplete files, so is_forgetful=true is consistent."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "There are multiple W_Call after offers resume/start events, suggesting more follow-ups were needed, so a propensity_to_respond of 0.67 is reasonable."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": true,
+        "reason": "No offer was accepted, and the only offer has an O_Cancelled event, so should_ghost=true is correct."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "The desired_monthly_payment (195.73) and desired_term (40) match the last offer. The maximum values are reasonably higher."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client is cancelled, so income is not constrained. 9860.57 is a reasonable positive value."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": true,
+        "reason": "The client is cancelled and total_active_credits is 1, which is < 6."
+      }
+    ]
+  },
+  {
+    "valid": false,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log, and is_fraudster is false."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "W_Handle leads is in the event log, and is_forgetful is true."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "There are multiple W_Call after offers resume/start events, and propensity_to_respond is 0.7, which is a reasonable lower value."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": false,
+        "reason": "An offer was accepted (accepted=true), but should_ghost is false. This is consistent. However, the rule states 'If at least one offer was accepted, should_ghost MUST be False'. The trace data shows 'accepted': true for Offer_117620760, but the profile has should_ghost: false. This is consistent. The rule also states 'If NO offer was accepted AND at least one offer has O_Cancelled, should_ghost MUST be True. If no offers exist or none were cancelled, should_ghost should be False.' The offer was accepted, so should_ghost should be false. This rule is passed."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "Desired monthly payment and term match the accepted offer. Maximum values are in a reasonable range."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client is rejected and not a fraudster. Income (5220.94) is not low relative to the requested amount (15000.0) for a loan, but the BKR total_active_credits is 0, which is not >= 6. This rule is passed because the income is not low relative to the requested amount, and the BKR is not high. The rule states 'income must be low relative to requested amount OR the BKR total_active_credits must be >= 6'. Neither condition is met for the rejection reason, but the income is not low, so it's not a violation."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": false,
+        "reason": "The client is a rejected non-fraudster. The BKR total_active_credits is 0, which is not >= 6. The rejection is not explained by high BKR credits. The rule states 'Must be < 6 unless the client is a rejected non-fraudster whose rejection is explained by high BKR credits (not low income)'. Since the rejection is not explained by high BKR credits, total_active_credits should be < 6, which it is. However, the income is not low, so the rejection reason is not clear based on the rule. The rule is passed because total_active_credits is < 6."
+      }
+    ]
+  },
+  {
+    "valid": true,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log and the final state is 'approved', so is_fraudster being false is consistent."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "W_Handle leads is in the event log, so is_forgetful being true is consistent."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "The propensity_to_respond value of 0.6 is a reasonable value given the presence of W_Call after offers resume/start events, indicating some follow-ups were needed."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": true,
+        "reason": "At least one offer (Offer_1534843733) was accepted, so should_ghost must be false."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "The desired and maximum monthly payment and term values are consistent with the accepted offer's terms and are within a reasonable range."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client is approved, and the income of 20086.76 is reasonable to support the requested loan amount of 15000.0 with a monthly cost of 282.96."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": true,
+        "reason": "The client is approved and total_active_credits is 1, which is less than 6."
+      }
+    ]
+  },
+  {
+    "valid": true,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log, and the final state is 'cancelled', so is_fraudster being false is consistent."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "W_Handle leads is in the event log, so is_forgetful being true is consistent."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "There are multiple W_Call after offers resume/start events (start, suspend, resume, suspend), suggesting more follow-ups were needed, so a propensity_to_respond of 0.73 is reasonable."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": true,
+        "reason": "At least one offer was accepted (offer_id 'Offer_108214080' has accepted=true), so should_ghost must be false, which it is."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "The desired_monthly_payment (220.0) and desired_term (57) match the accepted offer. The maximum values (273.82, 72) are in a reasonable range relative to the accepted offer."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client is cancelled, so income is not constrained. The value 7924.53 is a reasonable positive value."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": true,
+        "reason": "The client is cancelled, and total_active_credits is 2, which is less than 6."
+      }
+    ]
+  },
+  {
+    "valid": true,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log and the final state is 'approved', so is_fraudster should be false, which it is."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "W_Handle leads is in the event log, so is_forgetful should be true, which it is."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "The propensity_to_respond value of 0.84 is a reasonable value given the presence of W_Call after offers resume/start events, indicating some follow-up was needed."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": true,
+        "reason": "No offer was accepted (accepted=false for Offer_1217920740) and O_Returned and O_Accepted events are present for the offer, but O_Cancelled is not present. Therefore, should_ghost should be false, which it is."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "The desired_monthly_payment (250.0) and desired_term (22) match the last offer's monthly_cost and number_of_terms. The maximum values are also in a reasonable range relative to the reference offer."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client is approved, and the income (14459.35) is comfortably above the requested amount (5000.0) and monthly cost (250.0), supporting the loan."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": true,
+        "reason": "The client is approved, and total_active_credits (1) is less than 6."
+      }
+    ]
+  },
+  {
+    "valid": true,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log and the final state is 'cancelled', so is_fraudster=false is consistent."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "W_Handle leads is in the event log, so is_forgetful=true is consistent."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "The propensity_to_respond value of 0.66 is a reasonable value given the presence of W_Call after offers resume events, indicating some follow-up was needed."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": true,
+        "reason": "An offer was accepted (Offer_1750007091), so should_ghost must be False, which it is."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "The desired_monthly_payment (120.0) and desired_term (94) match the accepted offer. The maximum values are close and within a reasonable range."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client is cancelled, so income is not constrained. 6712.94 is a reasonable positive value."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": true,
+        "reason": "The client is cancelled, so total_active_credits must be < 6. The value is 4, which satisfies this condition."
+      }
+    ]
+  },
+  {
+    "valid": true,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log, and the final state is 'approved', so is_fraudster should be false, which it is."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "W_Handle leads is in the event log, so is_forgetful should be true, which it is."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "The propensity_to_respond value of 0.73 is reasonable given the presence of W_Call after offers resume/start events, indicating some follow-up was needed but not excessive."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": true,
+        "reason": "At least one offer was accepted (Offer_1365106765), so should_ghost must be False, which it is."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "The desired_monthly_payment (150.73) and desired_term (53) match the accepted offer's monthly_cost and terms, and the maximum values are in a reasonable range."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client is approved, and an income of 8352.31 is comfortably able to support a monthly payment of 150.73."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": true,
+        "reason": "The client is approved, and total_active_credits is 5, which is less than 6."
+      }
+    ]
+  },
+  {
+    "valid": true,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log. The final state is 'cancelled', so is_fraudster can be false."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "W_Handle leads is in the event log, so is_forgetful can be true."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "Propensity to respond is 0.71, which is a reasonable value given the event log shows multiple 'W_Call after offers' events, including suspend/resume cycles, indicating some follow-up was needed."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": true,
+        "reason": "At least one offer (all offers in this case) has 'accepted': true, therefore should_ghost must be false."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "The desired/maximum monthly payment and term values are in a reasonable range relative to the accepted/last offer details."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client is cancelled, so income is not constrained and 13727.75 is a reasonable positive value."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": true,
+        "reason": "The client is cancelled, and total_active_credits is 5, which is less than 6."
+      }
+    ]
+  },
+  {
+    "valid": true,
+    "checks": [
+      {
+        "rule": "FRAUDSTER",
+        "passed": true,
+        "reason": "W_Assess potential fraud is not in the event log and the final state is 'approved', so is_fraudster being false is consistent."
+      },
+      {
+        "rule": "IS_FORGETFUL",
+        "passed": true,
+        "reason": "W_Handle leads is in the event log, so is_forgetful being true is consistent."
+      },
+      {
+        "rule": "PROPENSITY_TO_RESPOND",
+        "passed": true,
+        "reason": "There are multiple W_Call after offers resume/start events, suggesting more follow-ups were needed, which aligns with a propensity_to_respond of 0.71 (not extremely high)."
+      },
+      {
+        "rule": "SHOULD_GHOST",
+        "passed": true,
+        "reason": "An offer was accepted (accepted=true), so should_ghost must be false, which it is."
+      },
+      {
+        "rule": "DESIRED/MAXIMUM MONTHLY PAYMENT & TERM",
+        "passed": true,
+        "reason": "Desired and maximum monthly payment and term are in a reasonable range relative to the accepted offer's values (78.44/100)."
+      },
+      {
+        "rule": "INCOME",
+        "passed": true,
+        "reason": "The client is approved, and an income of 3529.25 comfortably supports a monthly payment of 78.44."
+      },
+      {
+        "rule": "BKR TOTAL_ACTIVE_CREDITS",
+        "passed": true,
+        "reason": "The client is approved and total_active_credits is 0, which is less than 6."
+      }
+    ]
+  }
+]

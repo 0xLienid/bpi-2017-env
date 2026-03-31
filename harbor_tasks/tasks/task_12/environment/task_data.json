@@ -1,0 +1,57 @@
+{
+  "profile": {
+    "task_index": 12,
+    "application_id": "Application_1120819670",
+    "offer_ids": [
+      "Offer_1365106765"
+    ],
+    "name": "Frank Mulder",
+    "date_of_birth": "1976-01-02",
+    "bsn": "010310514",
+    "email": "frank.mulder1985@gmail.com",
+    "income": 8352.31,
+    "is_fraudster": false,
+    "is_forgetful": true,
+    "propensity_to_respond": 0.73,
+    "should_ghost": false,
+    "desired_monthly_payment": 150.73,
+    "maximum_monthly_payment": 168.76,
+    "desired_term": 53,
+    "maximum_term": 65,
+    "_final_state": "approved",
+    "_loan_goal": "Car",
+    "_application_type": "New credit",
+    "_requested_amount": 6850.0,
+    "_accepted_offer": {
+      "offered_amount": 6900.0,
+      "monthly_cost": 150.73,
+      "number_of_terms": 53,
+      "first_withdrawal_amount": 6900.0
+    },
+    "_last_offer": {
+      "offered_amount": 6900.0,
+      "monthly_cost": 150.73,
+      "number_of_terms": 53,
+      "first_withdrawal_amount": 6900.0
+    }
+  },
+  "ground_truth": {
+    "final_state": "approved",
+    "loan_goal": "Car",
+    "application_type": "New credit",
+    "requested_amount": 6850.0,
+    "has_handle_leads": true,
+    "accepted_offer": {
+      "offered_amount": 6900.0,
+      "monthly_cost": 150.73,
+      "number_of_terms": 53,
+      "first_withdrawal_amount": 6900.0
+    },
+    "last_offer": {
+      "offered_amount": 6900.0,
+      "monthly_cost": 150.73,
+      "number_of_terms": 53,
+      "first_withdrawal_amount": 6900.0
+    }
+  }
+}

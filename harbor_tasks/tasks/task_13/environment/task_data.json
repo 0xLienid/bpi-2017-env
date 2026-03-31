@@ -1,0 +1,59 @@
+{
+  "profile": {
+    "task_index": 13,
+    "application_id": "Application_42838382",
+    "offer_ids": [
+      "Offer_685676472",
+      "Offer_933028395",
+      "Offer_1372889733"
+    ],
+    "name": "Iris Visser",
+    "date_of_birth": "1998-08-26",
+    "bsn": "376311654",
+    "email": "iris.visser@yahoo.nl",
+    "income": 13727.75,
+    "is_fraudster": false,
+    "is_forgetful": true,
+    "propensity_to_respond": 0.71,
+    "should_ghost": false,
+    "desired_monthly_payment": 189.9,
+    "maximum_monthly_payment": 265.88,
+    "desired_term": 144,
+    "maximum_term": 163,
+    "_final_state": "cancelled",
+    "_loan_goal": "Existing loan takeover",
+    "_application_type": "New credit",
+    "_requested_amount": 29500.0,
+    "_accepted_offer": {
+      "offered_amount": 21500.0,
+      "monthly_cost": 227.88,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 0.0
+    },
+    "_last_offer": {
+      "offered_amount": 21500.0,
+      "monthly_cost": 225.87,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 0.0
+    }
+  },
+  "ground_truth": {
+    "final_state": "cancelled",
+    "loan_goal": "Existing loan takeover",
+    "application_type": "New credit",
+    "requested_amount": 29500.0,
+    "has_handle_leads": true,
+    "accepted_offer": {
+      "offered_amount": 21500.0,
+      "monthly_cost": 227.88,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 0.0
+    },
+    "last_offer": {
+      "offered_amount": 21500.0,
+      "monthly_cost": 225.87,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 0.0
+    }
+  }
+}

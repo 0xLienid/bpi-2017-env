@@ -1,0 +1,25 @@
+services:
+  main:
+    depends_on:
+      mcp-server:
+        condition: service_healthy
+    volumes:
+      - shared:/shared
+
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/mcp', timeout=2)"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 10s
+    volumes:
+      - shared:/shared
+    environment:
+      OPENROUTER_KEY: ${OPENROUTER_KEY}
+
+volumes:
+  shared:

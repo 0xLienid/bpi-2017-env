@@ -1,0 +1,48 @@
+{
+  "profile": {
+    "task_index": 3,
+    "application_id": "Application_1746793196",
+    "offer_ids": [
+      "Offer_1319158006",
+      "Offer_774210695"
+    ],
+    "name": "Maria Bakker",
+    "date_of_birth": "1982-07-19",
+    "bsn": "959310344",
+    "email": "m.bakker@live.nl",
+    "income": 12556.77,
+    "is_fraudster": false,
+    "is_forgetful": true,
+    "propensity_to_respond": 0.6,
+    "should_ghost": false,
+    "desired_monthly_payment": 229.75,
+    "maximum_monthly_payment": 319.41,
+    "desired_term": 79,
+    "maximum_term": 103,
+    "_final_state": "approved",
+    "_loan_goal": "Car",
+    "_application_type": "New credit",
+    "_requested_amount": 5000.0,
+    "_accepted_offer": null,
+    "_last_offer": {
+      "offered_amount": 15700.0,
+      "monthly_cost": 252.73,
+      "number_of_terms": 72,
+      "first_withdrawal_amount": 3726.0
+    }
+  },
+  "ground_truth": {
+    "final_state": "approved",
+    "loan_goal": "Car",
+    "application_type": "New credit",
+    "requested_amount": 5000.0,
+    "has_handle_leads": true,
+    "accepted_offer": null,
+    "last_offer": {
+      "offered_amount": 15700.0,
+      "monthly_cost": 252.73,
+      "number_of_terms": 72,
+      "first_withdrawal_amount": 3726.0
+    }
+  }
+}

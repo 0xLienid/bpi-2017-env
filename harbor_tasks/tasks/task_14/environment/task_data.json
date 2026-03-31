@@ -1,0 +1,57 @@
+{
+  "profile": {
+    "task_index": 14,
+    "application_id": "Application_180547487",
+    "offer_ids": [
+      "Offer_833160233"
+    ],
+    "name": "Mark Hendriks",
+    "date_of_birth": "1965-01-27",
+    "bsn": "065133389",
+    "email": "mark.hendriks@live.nl",
+    "income": 3529.25,
+    "is_fraudster": false,
+    "is_forgetful": true,
+    "propensity_to_respond": 0.71,
+    "should_ghost": false,
+    "desired_monthly_payment": 78.44,
+    "maximum_monthly_payment": 90.64,
+    "desired_term": 100,
+    "maximum_term": 113,
+    "_final_state": "approved",
+    "_loan_goal": "Home improvement",
+    "_application_type": "New credit",
+    "_requested_amount": 6000.0,
+    "_accepted_offer": {
+      "offered_amount": 6000.0,
+      "monthly_cost": 78.44,
+      "number_of_terms": 100,
+      "first_withdrawal_amount": 6000.0
+    },
+    "_last_offer": {
+      "offered_amount": 6000.0,
+      "monthly_cost": 78.44,
+      "number_of_terms": 100,
+      "first_withdrawal_amount": 6000.0
+    }
+  },
+  "ground_truth": {
+    "final_state": "approved",
+    "loan_goal": "Home improvement",
+    "application_type": "New credit",
+    "requested_amount": 6000.0,
+    "has_handle_leads": true,
+    "accepted_offer": {
+      "offered_amount": 6000.0,
+      "monthly_cost": 78.44,
+      "number_of_terms": 100,
+      "first_withdrawal_amount": 6000.0
+    },
+    "last_offer": {
+      "offered_amount": 6000.0,
+      "monthly_cost": 78.44,
+      "number_of_terms": 100,
+      "first_withdrawal_amount": 6000.0
+    }
+  }
+}

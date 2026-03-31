@@ -1,0 +1,57 @@
+{
+  "profile": {
+    "task_index": 4,
+    "application_id": "Application_828200680",
+    "offer_ids": [
+      "Offer_607758096"
+    ],
+    "name": "Pieter Smit",
+    "date_of_birth": "1988-12-22",
+    "bsn": "255341921",
+    "email": "pieter.smit89@hotmail.com",
+    "income": 16736.49,
+    "is_fraudster": false,
+    "is_forgetful": true,
+    "propensity_to_respond": 0.73,
+    "should_ghost": false,
+    "desired_monthly_payment": 366.08,
+    "maximum_monthly_payment": 406.79,
+    "desired_term": 120,
+    "maximum_term": 147,
+    "_final_state": "cancelled",
+    "_loan_goal": "Home improvement",
+    "_application_type": "New credit",
+    "_requested_amount": 35000.0,
+    "_accepted_offer": {
+      "offered_amount": 35000.0,
+      "monthly_cost": 366.08,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 35000.0
+    },
+    "_last_offer": {
+      "offered_amount": 35000.0,
+      "monthly_cost": 366.08,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 35000.0
+    }
+  },
+  "ground_truth": {
+    "final_state": "cancelled",
+    "loan_goal": "Home improvement",
+    "application_type": "New credit",
+    "requested_amount": 35000.0,
+    "has_handle_leads": true,
+    "accepted_offer": {
+      "offered_amount": 35000.0,
+      "monthly_cost": 366.08,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 35000.0
+    },
+    "last_offer": {
+      "offered_amount": 35000.0,
+      "monthly_cost": 366.08,
+      "number_of_terms": 120,
+      "first_withdrawal_amount": 35000.0
+    }
+  }
+}
